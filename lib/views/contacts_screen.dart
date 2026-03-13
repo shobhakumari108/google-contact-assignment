@@ -327,12 +327,13 @@ class ContactTile extends StatelessWidget {
                             ),
                             onPressed: () async {
                               try {
+                                final newFavoriteStatus = !contact.isFavorite;
                                 await provider.contactController
-                                    .toggleFavorite(contact.id!, !contact.isFavorite);
+                                    .toggleFavorite(contact.id!, newFavoriteStatus);
                                 provider.showSuccessMessage(
-                                  contact.isFavorite
-                                      ? 'Removed from favorites'
-                                      : 'Added to favorites',
+                                  newFavoriteStatus
+                                      ? 'Added to favorites'
+                                      : 'Removed from favorites',
                                 );
                               } catch (e) {
                                 provider.handleError('Failed to update favorite status');
@@ -363,7 +364,7 @@ class ContactTile extends StatelessWidget {
               ),
             ),
           ),
-          openBuilder: (context, action) => ContactProfileScreen(contact: contact),
+          openBuilder: (context, action) => ContactProfileScreen(contactId: contact.id!),
         );
       },
     );

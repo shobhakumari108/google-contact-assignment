@@ -1,6 +1,6 @@
 # Contact Manager App
 
-A modern, feature-rich contact management application built with Flutter and Firebase. This app demonstrates professional-level Flutter development with proper MVC architecture, state management, and Material Design principles.
+A modern, feature-rich contact management application built with Flutter and SQLite for offline data management. This app demonstrates professional-level Flutter development with proper MVC architecture, state management, and Material Design principles.
 
 ## Features
 
@@ -17,39 +17,17 @@ A modern, feature-rich contact management application built with Flutter and Fir
 - **Smooth Animations**: Custom animations for enhanced user experience
 - **Bottom Navigation**: Easy navigation between Contacts and Favorites
 - **Pull-to-Refresh**: Refresh contact lists with gesture support
+- **Instant Feedback**: Real-time UI updates for all actions
 
 ### Technical Features
 - **MVC Architecture**: Clean separation of concerns
-- **Firebase Integration**: Real-time data synchronization
+- **SQLite Database**: Local offline data storage
 - **State Management**: Provider pattern for efficient state management
 - **Input Validation**: Comprehensive form validation
 - **Error Handling**: User-friendly error messages and feedback
+- **Memory Management**: Proper resource disposal and cleanup
 
-## Architecture
 
-### Project Structure
-```
-lib/
-├── main.dart                 # App entry point
-├── models/                   # Data models
-│   └── contact_model.dart    # Contact entity
-├── views/                    # UI screens
-│   ├── home_screen.dart      # Main navigation
-│   ├── contacts_screen.dart  # Contacts list
-│   ├── favorites_screen.dart # Favorites list
-│   ├── add_contact_screen.dart # Add/Edit contact
-│   └── contact_profile_screen.dart # Contact details
-├── controllers/              # Business logic
-│   └── contact_controller.dart # Contact management
-├── services/                 # External services
-│   └── firebase_service.dart  # Firebase operations
-├── providers/                # State management
-│   └── contact_provider.dart  # App state
-├── utils/                    # Utilities
-│   └── validators.dart       # Input validation
-└── widgets/                  # Custom widgets
-    └── animated_widgets.dart # Reusable animations
-```
 
 ### MVC Pattern Implementation
 - **Models**: Define data structure and business rules
@@ -61,15 +39,15 @@ lib/
 ### Prerequisites
 - Flutter SDK (version 3.10.1 or higher)
 - Dart SDK
-- Firebase project
 - Android Studio / VS Code
+- Android/iOS device or emulator
 
 ### Setup Instructions
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd contact-manager
+   git clone <git@github.com:shobhakumari108/google-contact-assignment.git>
+  
    ```
 
 2. **Install dependencies**
@@ -77,25 +55,21 @@ lib/
    flutter pub get
    ```
 
-3. **Firebase Configuration**
-   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
-   - Enable Firestore Database
-   - Enable Authentication (optional)
-   - Download the configuration files:
-     - For Android: `google-services.json` → `android/app/`
-     - For iOS: `GoogleService-Info.plist` → `ios/Runner/`
-
-4. **Platform-specific setup**
+3. **Platform-specific setup**
 
    **Android:**
-   - Add `google-services` plugin to `android/build.gradle`
-   - Add the plugin to `android/app/build.gradle`
+   - Add phone permission to `android/app/src/main/AndroidManifest.xml`:
+     ```xml
+     <uses-permission android:name="android.permission.CALL_PHONE" />
+     ```
 
    **iOS:**
-   - Add Firebase SDK to `ios/Podfile`
-   - Run `cd ios && pod install`
-
-5. **Run the app**
+   - Add phone permission to `ios/Runner/Info.plist`:
+     ```xml
+     <key>NSContactsUsageDescription</key>
+     <string>This app needs access to contacts to manage them</string>
+     ```
+4. **Run the app**
    ```bash
    flutter run
    ```
@@ -135,9 +109,8 @@ lib/
 
 ### Core Dependencies
 - `flutter`: Flutter framework
-- `firebase_core`: Firebase initialization
-- `cloud_firestore`: Firestore database
-- `firebase_auth`: Firebase authentication
+- `sqflite`: SQLite database for local storage
+- `path`: Path manipulation for database
 - `provider`: State management
 - `url_launcher`: Call and email integration
 
@@ -150,162 +123,19 @@ lib/
 - `intl`: Date formatting
 - `animations`: Animation utilities
 
-## API Documentation
+## 🎯 Key Achievements
 
-### FirebaseService
-```dart
-class FirebaseService {
-  // Initialize Firebase
-  Future<void> initialize()
-  
-  // Contact operations
-  Future<List<Contact>> getContacts()
-  Future<List<Contact>> getFavoriteContacts()
-  Future<void> addContact(Contact contact)
-  Future<void> updateContact(Contact contact)
-  Future<void> deleteContact(String contactId)
-  Future<void> toggleFavorite(String contactId, bool isFavorite)
-  
-  // Stream operations
-  Stream<List<Contact>> getContactsStream()
-  Stream<List<Contact>> getFavoriteContactsStream()
-}
-```
-
-### ContactController
-```dart
-class ContactController extends ChangeNotifier {
-  // Getters
-  List<Contact> get contacts
-  List<Contact> get favoriteContacts
-  bool get isLoading
-  String? get error
-  
-  // Contact operations
-  Future<void> addContact(Contact contact)
-  Future<void> updateContact(Contact contact)
-  Future<void> deleteContact(String contactId)
-  Future<void> toggleFavorite(String contactId, bool isFavorite)
-  Future<void> refreshContacts()
-  
-  // Search functionality
-  List<Contact> searchContacts(String query)
-  List<Contact> searchFavoriteContacts(String query)
-}
-```
-
-## Testing
-
-### Running Tests
-```bash
-# Run all tests
-flutter test
-
-# Run specific test file
-flutter test test/contact_controller_test.dart
-
-# Generate test coverage
-flutter test --coverage
-```
-
-### Test Coverage
-- Unit tests for controllers
-- Widget tests for UI components
-- Integration tests for user flows
-
-## Building for Production
-
-### Android
-```bash
-# Build APK
-flutter build apk --release
-
-# Build App Bundle
-flutter build appbundle --release
-```
-
-### iOS
-```bash
-# Build iOS app
-flutter build ios --release
-```
-
-## Performance Optimizations
-
-### Implemented Optimizations
-- **Lazy Loading**: Contacts load on demand
-- **Stream-based Updates**: Real-time data synchronization
-- **Efficient State Management**: Provider pattern minimizes rebuilds
-- **Image Caching**: Profile pictures cached locally
-- **Optimized Animations**: 60fps smooth animations
-
-### Memory Management
-- Proper disposal of controllers and streams
-- Efficient list rendering with ListView.builder
-- Resource cleanup in dispose methods
-
-## Troubleshooting
-
-### Common Issues
-
-**Firebase Connection Issues**
-- Verify Firebase configuration files are correctly placed
-- Check internet connectivity
-- Ensure Firebase project is properly configured
-
-**Build Issues**
-- Run `flutter clean` and `flutter pub get`
-- Check for platform-specific dependencies
-- Verify Flutter and SDK versions
-
-**Performance Issues**
-- Monitor memory usage with Flutter Inspector
-- Check for unnecessary widget rebuilds
-- Optimize image sizes and resources
-
-## Contributing
-
-### Development Guidelines
-1. Follow Flutter/Dart coding standards
-2. Write tests for new features
-3. Update documentation for API changes
-4. Use meaningful commit messages
-5. Ensure code passes all linting rules
-
-### Code Style
-- Use `dart format` for code formatting
-- Follow `flutter_lints` rules
-- Write clear, descriptive comments
-- Use meaningful variable and function names
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the troubleshooting section
-- Review the API documentation
-
-## Future Enhancements
-
-### Planned Features
-- [ ] Contact groups and categories
-- [ ] Import/export contacts
-- [ ] Dark mode support
-- [ ] Contact backup and restore
-- [ ] Advanced search filters
-- [ ] Contact history tracking
-- [ ] Social media integration
-- [ ] Custom themes
-- [ ] Voice search
-- [ ] Contact widgets
-
-### Technical Improvements
-- [ ] Offline data synchronization
-- [ ] Performance monitoring
-- [ ] Crash reporting
-- [ ] Analytics integration
-- [ ] A/B testing framework
+- ✅ **Complete Offline Functionality**: Works without internet using SQLite
+- ✅ **Material Design 3**: Modern, intuitive UI following latest guidelines
+- ✅ **Instant UI Updates**: Real-time feedback for all user interactions
+- ✅ **Comprehensive CRUD Operations**: Full contact management lifecycle
+- ✅ **Advanced Search & Filter**: Powerful search across multiple fields
+- ✅ **Responsive Design**: Optimized for all screen sizes and devices
+- ✅ **Clean MVC Architecture**: Proper separation of concerns
+- ✅ **Memory Efficient**: Optimized performance with proper resource management
+- ✅ **User-Friendly**: Intuitive navigation and smooth interactions
+- ✅ **Error Handling**: Robust error management with user feedback
+- ✅ **Input Validation**: Comprehensive form validation
+- ✅ **Favorites System**: Quick access to important contacts
+- ✅ **Call & Email Integration**: Native device integration
+- ✅ **Smooth Animations**: Professional transitions and micro-interactions

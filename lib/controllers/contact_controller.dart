@@ -18,6 +18,11 @@ class ContactController extends ChangeNotifier {
 
   ContactController() {
     _initializeData();
+    _dataSyncService.addListener(_onDataSyncServiceChanged);
+  }
+
+  void _onDataSyncServiceChanged() {
+    notifyListeners();
   }
 
   Future<void> _initializeData() async {
@@ -81,11 +86,31 @@ class ContactController extends ChangeNotifier {
 
   Future<void> toggleFavorite(String contactId, bool isFavorite) async {
     try {
+      // Update local state immediately for instant UI feedback
+      final contactIndex = _contacts.indexWhere((c) => c.id == contactId);
+      if (contactIndex != -1) {
+        _contacts[contactIndex] = _contacts[contactIndex].copyWith(isFavorite: isFavorite);
+        
+        // Update favorites list
+        if (isFavorite) {
+          if (!_favoriteContacts.any((c) => c.id == contactId)) {
+            _favoriteContacts.add(_contacts[contactIndex]);
+          }
+        } else {
+          _favoriteContacts.removeWhere((c) => c.id == contactId);
+        }
+        
+        notifyListeners();
+      }
+      
+      // Then sync with database
       await _dataSyncService.toggleFavorite(contactId, isFavorite);
       await _loadContacts();
       _clearError();
     } catch (e) {
       _setError('Failed to update favorite status: ${e.toString()}');
+      // Reload contacts to restore correct state
+      await _loadContacts();
     }
   }
 
@@ -158,6 +183,7 @@ class ContactController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _dataSyncService.removeListener(_onDataSyncServiceChanged);
     super.dispose();
   }
 }

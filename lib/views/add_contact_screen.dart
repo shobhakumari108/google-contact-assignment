@@ -30,6 +30,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
     if (widget.contact != null) {
       _populateFields();
     }
+    _nameController.addListener(() {
+      setState(() {}); // Rebuild to update avatar
+    });
   }
 
   void _populateFields() {
@@ -81,16 +84,20 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.blue,
-                  child: Text(
-                    _nameController.text.isNotEmpty
-                        ? _nameController.text[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _nameController.text.isNotEmpty
+                      ? Text(
+                          _nameController.text[0].toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 32,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.white,
+                        ),
                 ),
               ),
               const SizedBox(height: 24),

@@ -214,16 +214,20 @@ class FavoriteContactTile extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: Text(
-                          contact.name.isNotEmpty
-                              ? contact.name[0].toUpperCase()
-                              : '?',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 20,
-                          ),
-                        ),
+                        child: contact.name.isNotEmpty
+                            ? Text(
+                                contact.name[0].toUpperCase(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 20,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.person,
+                                size: 24,
+                                color: Colors.white,
+                              ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -332,7 +336,7 @@ class FavoriteContactTile extends StatelessWidget {
               ),
             ),
           ),
-          openBuilder: (context, action) => ContactProfileScreen(contact: contact),
+          openBuilder: (context, action) => ContactProfileScreen(contactId: contact.id!),
         );
       },
     );

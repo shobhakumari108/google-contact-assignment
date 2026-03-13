@@ -6,40 +6,55 @@ import '../models/contact_model.dart';
 import 'add_contact_screen.dart';
 
 class ContactProfileScreen extends StatelessWidget {
-  final Contact contact;
+  final String contactId;
 
   const ContactProfileScreen({
     super.key,
-    required this.contact,
+    required this.contactId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverToBoxAdapter(
-            child: _buildProfileBody(context),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddContactScreen(contact: contact),
+    return Consumer<ContactProvider>(
+      builder: (context, provider, child) {
+        final contact = provider.contactController.getContactById(contactId);
+        
+        if (contact == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Contact Not Found')),
+            body: const Center(
+              child: Text('Contact not found'),
             ),
           );
-        },
-        icon: const Icon(Icons.edit),
-        label: const Text('Edit'),
-      ),
+        }
+
+        return Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              _buildAppBar(context, contact),
+              SliverToBoxAdapter(
+                child: _buildProfileBody(context, contact),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddContactScreen(contact: contact),
+                ),
+              );
+            },
+            icon: const Icon(Icons.edit),
+            label: const Text('Edit'),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, Contact contact) {
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
@@ -56,7 +71,7 @@ class ContactProfileScreen extends StatelessWidget {
                 child: Text(
                   contact.name.isNotEmpty
                       ? contact.name[0].toUpperCase()
-                      : '?',
+                      : '👤',
                   style: const TextStyle(
                     fontSize: 32,
                     color: Colors.blue,
@@ -87,12 +102,13 @@ class ContactProfileScreen extends StatelessWidget {
               ),
               onPressed: () async {
                 try {
+                  final newFavoriteStatus = !contact.isFavorite;
                   await provider.contactController
-                      .toggleFavorite(contact.id!, !contact.isFavorite);
+                      .toggleFavorite(contact.id!, newFavoriteStatus);
                   provider.showSuccessMessage(
-                    contact.isFavorite
-                        ? 'Removed from favorites'
-                        : 'Added to favorites',
+                    newFavoriteStatus
+                        ? 'Added to favorites'
+                        : 'Removed from favorites',
                   );
                 } catch (e) {
                   provider.handleError('Failed to update favorite status');
@@ -108,7 +124,7 @@ class ContactProfileScreen extends StatelessWidget {
                 _makePhoneCall(contact.phoneNumber);
                 break;
               case 'delete':
-                _showDeleteConfirmation(context);
+                _showDeleteConfirmation(context, contact);
                 break;
             }
           },
@@ -133,7 +149,7 @@ class ContactProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileBody(BuildContext context) {
+  Widget _buildProfileBody(BuildContext context, Contact contact) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -166,9 +182,9 @@ class ContactProfileScreen extends StatelessWidget {
               Icons.location_on,
             ),
           if (contact.notes != null && contact.notes!.isNotEmpty)
-            _buildNotesSection(),
+            _buildNotesSection(contact),
           const SizedBox(height: 32),
-          _buildActionButtons(context),
+          _buildActionButtons(context, contact),
         ],
       ),
     );
@@ -204,7 +220,7 @@ class ContactProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNotesSection() {
+  Widget _buildNotesSection(Contact contact) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -236,7 +252,7 @@ class ContactProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, Contact contact) {
     return Column(
       children: [
         SizedBox(
@@ -303,7 +319,7 @@ class ContactProfileScreen extends StatelessWidget {
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
+  void _showDeleteConfirmation(BuildContext context, Contact contact) {
     final provider = Provider.of<ContactProvider>(context, listen: false);
     showDialog(
       context: context,

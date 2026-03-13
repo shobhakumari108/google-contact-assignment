@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'database_service.dart';
 import 'firebase_service.dart';
 import '../models/contact_model.dart';
 
-class DataSyncService {
+class DataSyncService extends ChangeNotifier {
   static final DataSyncService _instance = DataSyncService._internal();
   factory DataSyncService() => _instance;
   DataSyncService._internal();
@@ -16,6 +17,11 @@ class DataSyncService {
   bool get isOnline => _isOnline;
   bool get isSyncing => _isSyncing;
 
+  void _setSyncingStatus(bool syncing) {
+    _isSyncing = syncing;
+    notifyListeners();
+  }
+
   Future<void> initialize() async {
     await _dbService.database;
     await _firebaseService.initialize();
@@ -28,7 +34,7 @@ class DataSyncService {
 
   Future<void> _performInitialSync() async {
     try {
-      _isSyncing = true;
+      _setSyncingStatus(true);
       
       // Get all contacts from Firebase
       final firebaseContacts = await _firebaseService.getContacts();
@@ -40,7 +46,7 @@ class DataSyncService {
     } catch (e) {
       print('Initial sync failed: $e');
     } finally {
-      _isSyncing = false;
+      _setSyncingStatus(false);
     }
   }
 
@@ -48,7 +54,7 @@ class DataSyncService {
     if (!_isOnline || _isSyncing) return;
     
     try {
-      _isSyncing = true;
+      _setSyncingStatus(true);
       
       // Get unsynced contacts
       final unsyncedContacts = await _dbService.getUnsyncedContacts();
@@ -79,7 +85,7 @@ class DataSyncService {
     } catch (e) {
       print('Sync to Firebase failed: $e');
     } finally {
-      _isSyncing = false;
+      _setSyncingStatus(false);
     }
   }
 
@@ -226,6 +232,7 @@ class DataSyncService {
   Future<void> setOnlineStatus(bool isOnline) async {
     if (_isOnline != isOnline) {
       _isOnline = isOnline;
+      notifyListeners();
       
       if (isOnline) {
         // When coming back online, sync any pending changes
