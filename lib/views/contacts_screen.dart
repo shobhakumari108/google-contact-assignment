@@ -290,10 +290,14 @@ class ContactTile extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: Icon(
-                          updatedContact.isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: updatedContact.isFavorite ? Colors.red : const Color(0xFF6B7280),
-                          size: 20,
+                        icon: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: Icon(
+                            updatedContact.isFavorite ? Icons.favorite : Icons.favorite_border,
+                            key: ValueKey('favorite_${updatedContact.id}_${updatedContact.isFavorite}'),
+                            color: updatedContact.isFavorite ? Colors.red : const Color(0xFF6B7280),
+                            size: 20,
+                          ),
                         ),
                         onPressed: () async {
                           try {

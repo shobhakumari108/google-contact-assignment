@@ -301,10 +301,14 @@ class FavoriteContactTile extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: IconButton(
-                            icon: const Icon(
-                              Icons.favorite,
-                              color: Colors.red,
-                              size: 20,
+                            icon: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: Icon(
+                                Icons.favorite,
+                                key: ValueKey('favorite_${updatedContact.id}_${updatedContact.isFavorite}'),
+                                color: updatedContact.isFavorite ? Colors.red : Colors.grey,
+                                size: 20,
+                              ),
                             ),
                             onPressed: () async {
                               try {
@@ -329,7 +333,7 @@ class FavoriteContactTile extends StatelessWidget {
                               size: 20,
                             ),
                             onPressed: () {
-                              _showContactOptions(context, contact, provider);
+                              _showContactOptions(context, updatedContact, provider);
                             },
                           ),
                         ),

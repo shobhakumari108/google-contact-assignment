@@ -6,6 +6,15 @@ class ContactProvider extends ChangeNotifier {
   
   ContactController get contactController => _contactController;
   
+  ContactProvider() {
+    // Listen to contact controller changes
+    _contactController.addListener(_onContactControllerChanged);
+  }
+  
+  void _onContactControllerChanged() {
+    notifyListeners();
+  }
+  
   // Navigation state
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
@@ -77,5 +86,12 @@ class ContactProvider extends ChangeNotifier {
   
   void setContext(BuildContext context) {
     _context = context;
+  }
+  
+  @override
+  void dispose() {
+    _contactController.removeListener(_onContactControllerChanged);
+    _contactController.dispose();
+    super.dispose();
   }
 }

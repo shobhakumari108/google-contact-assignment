@@ -106,6 +106,7 @@ class ContactController extends ChangeNotifier {
           _favoriteContacts.removeWhere((c) => c.id == contactId);
         }
         
+        // Notify listeners immediately to update UI
         notifyListeners();
       }
       
