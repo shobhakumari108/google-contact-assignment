@@ -1,27 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'providers/contact_provider.dart';
 import 'views/home_screen.dart';
-import 'services/firebase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase only on non-web platforms
-  if (!kIsWeb) {
-    try {
-      await Firebase.initializeApp();
-      print('Firebase initialized successfully');
-    } catch (e) {
-      print('Firebase not configured - running in local mode: $e');
-    }
-  } else {
-    print('Running on web - using local storage mode');
-  }
+  print('Running in local database mode');
   
-  await FirebaseService().initialize();
   runApp(const MyApp());
 }
 

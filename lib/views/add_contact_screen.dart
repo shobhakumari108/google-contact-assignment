@@ -83,7 +83,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
               Center(
                 child: CircleAvatar(
                   radius: 50,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0xFF6366F1),
                   child: _nameController.text.isNotEmpty
                       ? Text(
                           _nameController.text[0].toUpperCase(),
@@ -185,14 +185,21 @@ class _AddContactScreenState extends State<AddContactScreen> {
                 child: ElevatedButton(
                   onPressed: _saveContact,
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 2,
+                    shadowColor: const Color(0xFF6366F1).withOpacity(0.3),
                   ),
                   child: Text(
                     isEditing ? 'Update Contact' : 'Save Contact',
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -209,7 +216,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
       style: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Colors.blue,
+        color: Color(0xFF6366F1),
       ),
     );
   }
@@ -241,7 +248,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.blue, width: 2),
+          borderSide: const BorderSide(color: Color(0xFF6366F1), width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -296,35 +303,153 @@ class _AddContactScreenState extends State<AddContactScreen> {
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
-    final provider = Provider.of<ContactProvider>(context, listen: false);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Contact'),
-        content: Text('Are you sure you want to delete ${widget.contact!.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await provider.contactController.deleteContact(widget.contact!.id!);
-                provider.showSuccessMessage('Contact deleted successfully');
-                if (mounted) {
-                  Navigator.pop(context);
-                }
-              } catch (e) {
-                provider.handleError('Failed to delete contact');
-              }
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+void _showDeleteConfirmation(BuildContext context) {
+  final provider = Provider.of<ContactProvider>(context, listen: false);
+
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
-    );
-  }
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.delete_outline,
+                color: Colors.red,
+                size: 35,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Title
+            const Text(
+              "Delete Contact",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Message
+            Text(
+              "Are you sure you want to delete\n${widget.contact!.name}?",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black54,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text("Cancel"),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      try {
+                        await provider.contactController
+                            .deleteContact(widget.contact!.id!);
+
+                        provider.showSuccessMessage(
+                            'Contact deleted successfully');
+
+                        if (mounted) {
+                          Navigator.pop(context);
+                        }
+                      } catch (e) {
+                        provider.handleError('Failed to delete contact');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Delete",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+  // void _showDeleteConfirmation(BuildContext context) {
+  //   final provider = Provider.of<ContactProvider>(context, listen: false);
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text('Delete Contact'),
+  //       content: Text('Are you sure you want to delete ${widget.contact!.name}?'),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           style: TextButton.styleFrom(
+  //             foregroundColor: const Color(0xFF6366F1),
+  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //           ),
+  //           child: const Text('Cancel'),
+  //         ),
+  //         TextButton(
+  //           onPressed: () async {
+  //             Navigator.pop(context);
+  //             try {
+  //               await provider.contactController.deleteContact(widget.contact!.id!);
+  //               provider.showSuccessMessage('Contact deleted successfully');
+  //               if (mounted) {
+  //                 Navigator.pop(context);
+  //               }
+  //             } catch (e) {
+  //               provider.handleError('Failed to delete contact');
+  //             }
+  //           },
+  //           style: TextButton.styleFrom(
+  //             foregroundColor: Colors.red,
+  //             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //           ),
+  //           child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w600)),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

@@ -13,8 +13,6 @@ class ContactController extends ChangeNotifier {
   List<Contact> get favoriteContacts => _favoriteContacts;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get isOnline => _dataSyncService.isOnline;
-  bool get isSyncing => _dataSyncService.isSyncing;
 
   ContactController() {
     _initializeData();
@@ -28,8 +26,10 @@ class ContactController extends ChangeNotifier {
   Future<void> _initializeData() async {
     try {
       _setLoading(true);
+      notifyListeners(); // Notify immediately to show loading state
+      
       await _dataSyncService.initialize();
-      await _loadContacts();
+      await loadContacts();
     } catch (e) {
       _setError('Failed to initialize data: ${e.toString()}');
     } finally {
@@ -37,11 +37,17 @@ class ContactController extends ChangeNotifier {
     }
   }
 
-  Future<void> _loadContacts() async {
+  Future<void> loadContacts() async {
     final contacts = await _dataSyncService.getContacts();
     final favorites = await _dataSyncService.getFavoriteContacts();
     _contacts = contacts;
     _favoriteContacts = favorites;
+    
+    // Mark initial loading as complete after first successful load
+    if (_isLoading) {
+      _setLoading(false);
+    }
+    
     notifyListeners();
   }
 
@@ -49,7 +55,7 @@ class ContactController extends ChangeNotifier {
     try {
       _setLoading(true);
       await _dataSyncService.addContact(contact);
-      await _loadContacts();
+      await loadContacts();
       _clearError();
     } catch (e) {
       _setError('Failed to add contact: ${e.toString()}');
@@ -62,7 +68,7 @@ class ContactController extends ChangeNotifier {
     try {
       _setLoading(true);
       await _dataSyncService.updateContact(contact);
-      await _loadContacts();
+      await loadContacts();
       _clearError();
     } catch (e) {
       _setError('Failed to update contact: ${e.toString()}');
@@ -75,7 +81,7 @@ class ContactController extends ChangeNotifier {
     try {
       _setLoading(true);
       await _dataSyncService.deleteContact(contactId);
-      await _loadContacts();
+      await loadContacts();
       _clearError();
     } catch (e) {
       _setError('Failed to delete contact: ${e.toString()}');
@@ -103,38 +109,17 @@ class ContactController extends ChangeNotifier {
         notifyListeners();
       }
       
-      // Then sync with database
+      // Then sync with database (don't reload contacts as we already updated local state)
       await _dataSyncService.toggleFavorite(contactId, isFavorite);
-      await _loadContacts();
       _clearError();
     } catch (e) {
       _setError('Failed to update favorite status: ${e.toString()}');
-      // Reload contacts to restore correct state
-      await _loadContacts();
+      // Reload contacts to restore correct state only on error
+      await loadContacts();
     }
   }
 
-  Future<void> refreshContacts() async {
-    try {
-      _setLoading(true);
-      await _dataSyncService.refreshContacts();
-      await _loadContacts();
-      _clearError();
-    } catch (e) {
-      _setError('Failed to refresh contacts: ${e.toString()}');
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  Future<void> syncToCloud() async {
-    try {
-      await _dataSyncService.syncToFirebase();
-      _clearError();
-    } catch (e) {
-      _setError('Failed to sync to cloud: ${e.toString()}');
-    }
-  }
+  
 
   Contact? getContactById(String contactId) {
     try {

@@ -30,88 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Consumer<ContactProvider>(
-          builder: (context, provider, child) {
-            return Row(
-              children: [
-                const Text('Contact Manager'),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: provider.contactController.isOnline 
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: provider.contactController.isOnline 
-                          ? Colors.green
-                          : Colors.grey,
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        provider.contactController.isOnline 
-                            ? Icons.cloud_done
-                            : Icons.cloud_off,
-                        size: 16,
-                        color: provider.contactController.isOnline 
-                            ? Colors.green
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        provider.contactController.isOnline ? 'Online' : 'Offline',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: provider.contactController.isOnline 
-                              ? Colors.green
-                              : Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (provider.contactController.isSyncing)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-        actions: [
-          Consumer<ContactProvider>(
-            builder: (context, provider, child) {
-              if (provider.contactController.isOnline && 
-                  provider.contactController.isSyncing == false) {
-                return IconButton(
-                  icon: const Icon(Icons.sync),
-                  onPressed: () async {
-                    await provider.contactController.syncToCloud();
-                    provider.showSuccessMessage('Sync completed');
-                  },
-                  tooltip: 'Sync to cloud',
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
+        title: const Text('Contact Manager'),
       ),
       body: Consumer<ContactProvider>(
         builder: (context, provider, child) {
@@ -135,7 +54,12 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               icon: const Icon(Icons.add),
               label: const Text('Add Contact'),
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
               elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         },

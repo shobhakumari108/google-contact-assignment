@@ -33,8 +33,7 @@ class DatabaseService {
             notes TEXT,
             isFavorite INTEGER NOT NULL DEFAULT 0,
             createdAt TEXT NOT NULL,
-            updatedAt TEXT NOT NULL,
-            synced INTEGER NOT NULL DEFAULT 0
+            updatedAt TEXT NOT NULL
           )
         ''');
       },
@@ -150,7 +149,6 @@ class DatabaseService {
         'isFavorite': contact.isFavorite ? 1 : 0,
         'createdAt': now,
         'updatedAt': now,
-        'synced': 0,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -169,7 +167,6 @@ class DatabaseService {
         'notes': contact.notes,
         'isFavorite': contact.isFavorite ? 1 : 0,
         'updatedAt': DateTime.now().toIso8601String(),
-        'synced': 0,
       },
       where: 'id = ?',
       whereArgs: [contact.id],
@@ -185,43 +182,7 @@ class DatabaseService {
     );
   }
 
-  Future<void> markAsSynced(String contactId) async {
-    final db = await database;
-    await db.update(
-      'contacts',
-      {'synced': 1},
-      where: 'id = ?',
-      whereArgs: [contactId],
-    );
-  }
-
-  Future<void> syncFromFirebase(List<Contact> contacts) async {
-    final db = await database;
-    final batch = db.batch();
-
-    for (final contact in contacts) {
-      batch.insert(
-        'contacts',
-        {
-          'id': contact.id,
-          'name': contact.name,
-          'phoneNumber': contact.phoneNumber,
-          'email': contact.email,
-          'address': contact.address,
-          'company': contact.company,
-          'notes': contact.notes,
-          'isFavorite': contact.isFavorite ? 1 : 0,
-          'createdAt': contact.createdAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
-          'updatedAt': contact.updatedAt?.toIso8601String() ?? DateTime.now().toIso8601String(),
-          'synced': 1,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-
-    await batch.commit(noResult: true);
-  }
-
+  
   Future<void> clearAllContacts() async {
     final db = await database;
     await db.delete('contacts');

@@ -85,7 +85,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               ? provider.contactController.favoriteContacts
               : provider.contactController.searchFavoriteContacts(provider.searchQuery);
 
-          if (provider.contactController.isLoading && favorites.isEmpty) {
+          if (provider.contactController.isLoading && favorites.isEmpty && provider.contactController.error == null) {
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -139,7 +139,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              await provider.contactController.refreshContacts();
+              await provider.contactController.loadContacts();
             },
             color: const Color(0xFF6366F1),
             child: ListView.builder(
@@ -177,6 +177,10 @@ class FavoriteContactTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ContactProvider>(
       builder: (context, provider, child) {
+        // Get the updated contact from the controller to ensure we have the latest state
+        final updatedContact = provider.contactController.contacts
+            .firstWhere((c) => c.id == contact.id, orElse: () => contact);
+        
         return OpenContainer(
           closedElevation: 0,
           closedShape: RoundedRectangleBorder(
@@ -214,9 +218,9 @@ class FavoriteContactTile extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: contact.name.isNotEmpty
+                        child: updatedContact.name.isNotEmpty
                             ? Text(
-                                contact.name[0].toUpperCase(),
+                                updatedContact.name[0].toUpperCase(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -236,7 +240,7 @@ class FavoriteContactTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            contact.name,
+                            updatedContact.name,
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -253,7 +257,7 @@ class FavoriteContactTile extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                contact.phoneNumber,
+                                updatedContact.phoneNumber,
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,
@@ -261,7 +265,7 @@ class FavoriteContactTile extends StatelessWidget {
                               ),
                             ],
                           ),
-                          if (contact.email != null && contact.email!.isNotEmpty)
+                          if (updatedContact.email != null && updatedContact.email!.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 2),
                               child: Row(
@@ -274,7 +278,7 @@ class FavoriteContactTile extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      contact.email!,
+                                      updatedContact.email!,
                                       style: TextStyle(
                                         color: Colors.grey[600],
                                         fontSize: 14,
@@ -305,7 +309,7 @@ class FavoriteContactTile extends StatelessWidget {
                             onPressed: () async {
                               try {
                                 await provider.contactController
-                                    .toggleFavorite(contact.id!, false);
+                                    .toggleFavorite(updatedContact.id!, false);
                                 provider.showSuccessMessage('Removed from favorites');
                               } catch (e) {
                                 provider.handleError('Failed to update favorite status');
@@ -336,7 +340,7 @@ class FavoriteContactTile extends StatelessWidget {
               ),
             ),
           ),
-          openBuilder: (context, action) => ContactProfileScreen(contactId: contact.id!),
+          openBuilder: (context, action) => ContactProfileScreen(contactId: updatedContact.id!),
         );
       },
     );
@@ -405,6 +409,10 @@ class FavoriteContactTile extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF6366F1),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -417,7 +425,11 @@ class FavoriteContactTile extends StatelessWidget {
                 provider.handleError('Failed to delete contact');
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),

@@ -46,8 +46,8 @@ A modern, feature-rich contact management application built with Flutter and SQL
 
 1. **Clone the repository**
    ```bash
-   git clone <git@github.com:shobhakumari108/google-contact-assignment.git>
-  
+   git clone https://github.com/shobhakumari108/google-contact-assignment.git
+  cd google-contact-assignment
    ```
 
 2. **Install dependencies**

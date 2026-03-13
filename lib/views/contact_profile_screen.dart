@@ -48,6 +48,12 @@ class ContactProfileScreen extends StatelessWidget {
             },
             icon: const Icon(Icons.edit),
             label: const Text('Edit'),
+            backgroundColor: const Color(0xFF6366F1),
+            foregroundColor: Colors.white,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       },
@@ -60,7 +66,7 @@ class ContactProfileScreen extends StatelessWidget {
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
-          color: Colors.blue,
+          color: const Color(0xFF6366F1),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -74,7 +80,7 @@ class ContactProfileScreen extends StatelessWidget {
                       : '👤',
                   style: const TextStyle(
                     fontSize: 32,
-                    color: Colors.blue,
+                    color: Color(0xFF6366F1),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -95,16 +101,20 @@ class ContactProfileScreen extends StatelessWidget {
       actions: [
         Consumer<ContactProvider>(
           builder: (context, provider, child) {
+            // Get the updated contact from the controller to ensure we have the latest state
+            final updatedContact = provider.contactController.contacts
+                .firstWhere((c) => c.id == contact.id, orElse: () => contact);
+            
             return IconButton(
               icon: Icon(
-                contact.isFavorite ? Icons.favorite : Icons.favorite_border,
+                updatedContact.isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: Colors.white,
               ),
               onPressed: () async {
                 try {
-                  final newFavoriteStatus = !contact.isFavorite;
+                  final newFavoriteStatus = !updatedContact.isFavorite;
                   await provider.contactController
-                      .toggleFavorite(contact.id!, newFavoriteStatus);
+                      .toggleFavorite(updatedContact.id!, newFavoriteStatus);
                   provider.showSuccessMessage(
                     newFavoriteStatus
                         ? 'Added to favorites'
@@ -199,7 +209,7 @@ class ContactProfileScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: Icon(icon, color: Colors.blue),
+        leading: Icon(icon, color: const Color(0xFF6366F1)),
         title: Text(
           title,
           style: const TextStyle(
@@ -230,7 +240,7 @@ class ContactProfileScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.note, color: Colors.blue),
+                const Icon(Icons.note, color: Color(0xFF6366F1)),
                 const SizedBox(width: 12),
                 Text(
                   'Notes',
@@ -262,10 +272,14 @@ class ContactProfileScreen extends StatelessWidget {
             icon: const Icon(Icons.phone),
             label: const Text('Call'),
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 2,
+              shadowColor: const Color(0xFF6366F1).withOpacity(0.3),
             ),
           ),
         ),
@@ -278,10 +292,14 @@ class ContactProfileScreen extends StatelessWidget {
               icon: const Icon(Icons.email),
               label: const Text('Send Email'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: const Color(0xFF6366F1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 2,
+                shadowColor: const Color(0xFF6366F1).withOpacity(0.3),
               ),
             ),
           ),
@@ -329,6 +347,10 @@ class ContactProfileScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF6366F1),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -342,7 +364,11 @@ class ContactProfileScreen extends StatelessWidget {
                 provider.handleError('Failed to delete contact');
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),

@@ -38,6 +38,15 @@ class ContactProvider extends ChangeNotifier {
     notifyListeners();
   }
   
+  // Initial loading state
+  bool _isInitialLoading = true;
+  bool get isInitialLoading => _isInitialLoading;
+  
+  void setInitialLoading(bool loading) {
+    _isInitialLoading = loading;
+    notifyListeners();
+  }
+  
   // Error handling
   void handleError(String error) {
     ScaffoldMessenger.of(getCurrentContext()).showSnackBar(

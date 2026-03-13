@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Contact {
   String? id;
@@ -25,33 +24,33 @@ class Contact {
     this.isFavorite = false,
   });
 
-  factory Contact.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
+  factory Contact.fromMap(Map<String, dynamic> map) {
     return Contact(
-      id: doc.id,
-      name: data['name'] ?? '',
-      phoneNumber: data['phoneNumber'] ?? '',
-      email: data['email'],
-      address: data['address'],
-      company: data['company'],
-      notes: data['notes'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-      isFavorite: data['isFavorite'] ?? false,
+      id: map['id'],
+      name: map['name'] ?? '',
+      phoneNumber: map['phoneNumber'] ?? '',
+      email: map['email'],
+      address: map['address'],
+      company: map['company'],
+      notes: map['notes'],
+      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(map['updatedAt'] ?? DateTime.now().toIso8601String()),
+      isFavorite: (map['isFavorite'] ?? 0) == 1,
     );
   }
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'phoneNumber': phoneNumber,
       'email': email,
       'address': address,
       'company': company,
       'notes': notes,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-      'isFavorite': isFavorite,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'isFavorite': isFavorite ? 1 : 0,
     };
   }
 
